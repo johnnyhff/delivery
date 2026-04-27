@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Delivery Interativo - Estilo macOS</title>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const inputsQtd = document.querySelectorAll('.qtd');
+        const totalDisplay = document.getElementById('valor-total');
+        const btnEnviar = document.getElementById('btn-enviar');
+        const btnTema = document.getElementById('btn-tema');
+
+        // Lógica de Troca de Tema
+        btnTema.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            btnTema.innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        });
+
+        function atualizarTotal() {
+            let total = 0;
+            const itens = document.querySelectorAll('.item');
+
+            itens.forEach(item => {
+                const preco = parseFloat(item.getAttribute('data-preco'));
+                const qtd = parseInt(item.querySelector('.qtd').value) || 0;
+                total += preco * qtd;
+            });
+
+            totalDisplay.innerText = total.toFixed(2).replace('.', ',');
+        }
+
+        inputsQtd.forEach(input => {
+            input.addEventListener('input', atualizarTotal);
+            input.addEventListener('change', atualizarTotal);
+        });
+
+        btnEnviar.addEventListener('click', () => {
+            const nome = document.getElementById('nome').value;
+            const endereco = document.getElementById('endereco').value;
+            const pagamento = document.getElementById('pagamento').value;
+            const totalFinal = totalDisplay.innerText;
+
+            if (!nome || !endereco || totalFinal === "0,00") {
+                alert("Por favor, preencha os dados e adicione itens ao carrinho!");
+                return;
+            }
+
+            let listaItens = "";
+            document.querySelectorAll('.item').forEach(item => {
+                const qtd = item.querySelector('.qtd').value;
+                if (qtd > 0) {
+                    const nomeItem = item.getAttribute('data-nome');
+                    listaItens += `• ${nomeItem}: ${qtd}x\n`;
+                }
+            });
+
+            const textoMensagem = `*NOVO PEDIDO* 🚀\n\n*Cliente:* ${nome}\n*Endereço:* ${endereco}\n--------------------------\n${listaItens}--------------------------\n*Total:* R$ ${totalFinal}\n*Pagamento:* ${pagamento}`;
+
+            const meuWhatsapp = "+552299999999"; 
+            window.open(`https://wa.me/${meuWhatsapp}?text=${encodeURIComponent(textoMensagem)}`, '_blank');
+        });
+    });
+    </script>
+
+    <style>
+    /* Variáveis de cores para os Temas */
+    :root {
+        --bg-body: #e0e0e0;
+        --bg-container: #ffffff;
+        --bg-header: #f0f0f0;
+        --text-title: #1d1d1f;
+        --text-sub: #6e6e73;
+        --border-color: #d0d0d0;
+        --item-border: #eaeaea;
+        --input-bg: #fcfcfc;
+    }
+
+    .dark-mode {
+        --bg-body: #1a1a1c;
+        --bg-container: #2c2c2e;
+        --bg-header: #3a3a3c;
+        --text-title: #ffffff;
+        --text-sub: #a1a1a6;
+        --border-color: #48484a;
+        --item-border: #3a3a3c;
+        --input-bg: #1c1c1e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.3s, color 0.3s; }
+
+    body { 
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+        background-color: var(--bg-body); 
+        padding: 40px 20px; 
+        display: flex;
+        justify-content: center;
+        min-height: 100vh;
+    }
+
+    .container { 
+        width: 100%;
+        max-width: 450px; 
+        background: var(--bg-container); 
+        border-radius: 12px; 
+        box-shadow: 0 15px 40px rgba(0,0,0,0.2); 
+        overflow: hidden; 
+        border: 1px solid var(--border-color); 
+    }
+
+    .window-header {
+        background: var(--bg-header); 
+        padding: 10px 15px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .window-controls { display: flex; gap: 8px; }
+    .window-control { width: 12px; height: 12px; border-radius: 50%; }
+    .close { background: #ff5f56; }
+    .minimize { background: #ffbd2e; }
+    .maximize { background: #27c93f; }
+
+    #btn-tema {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2rem;
+        filter: grayscale(0.5);
+    }
+
+    .window-title { font-weight: 600; color: var(--text-title); font-size: 0.9rem; }
+    .window-content { padding: 25px; }
+
+    header { margin-bottom: 20px; text-align: center; }
+    h2 { color: var(--text-title); margin-bottom: 8px; font-weight: 700; }
+    header p, h3 { color: var(--text-sub); }
+
+    .item { 
+        display: flex; justify-content: space-between; align-items: center; 
+        border-bottom: 1px solid var(--item-border); padding: 18px 0; 
+    }
+
+    .item span { color: var(--text-title); font-weight: 500; }
+
+    .item input { 
+        width: 70px; padding: 8px; border: 1px solid var(--border-color); 
+        border-radius: 8px; text-align: center; background: var(--input-bg); color: var(--text-title);
+    }
+
+    .total-section { 
+        font-size: 1.6rem; font-weight: 700; margin: 25px 0; 
+        color: var(--text-title); text-align: right;
+    }
+
+    #valor-total { color: #d63031; }
+
+    form input, form select { 
+        width: 100%; padding: 14px; margin: 8px 0 18px 0; 
+        border: 1px solid var(--border-color); border-radius: 10px; 
+        background: var(--input-bg); color: var(--text-title);
+    }
+
+    label { font-weight: 500; color: var(--text-sub); margin-bottom: 5px; display: block; }
+
+    /* BOTÃO WHATSAPP (VERDE) */
+    button#btn-enviar { 
+        width: 100%; 
+        padding: 16px; 
+        background-color: #25d366; /* Verde Oficial */
+        color: #ffffff; 
+        border: none; 
+        border-radius: 12px; 
+        cursor: pointer; 
+        font-size: 1.15rem; 
+        font-weight: 600; 
+        transition: 0.3s;
+        margin-top: 10px;
+        box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
+    }
+
+    button#btn-enviar:hover { 
+        background-color: #1ebe57; 
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(37, 211, 102, 0.4);
+    }
+
+    button#btn-enviar:active { transform: translateY(0); }
+
+    @media (max-width: 480px) { body { padding: 20px 10px; } }
+    </style>
+</head>
+<body>
+    
+<div class="container">
+    <div class="window-header">
+        <div class="window-controls">
+            <div class="window-control close"></div>
+            <div class="window-control minimize"></div>
+            <div class="window-control maximize"></div>
+        </div>
+        <div class="window-title">Meu Delivery</div>
+        <button id="btn-tema" title="Alternar Modo Escuro/Claro">🌙</button>
+    </div>
+
+    <div class="window-content">
+        <header>
+            <h2>🍔 Cardápio Online</h2>
+            <p>Monte seu pedido abaixo:</p>
+        </header>
+
+        <div id="cardapio">
+            <div class="item" data-nome="X-Burger" data-preco="25.00">
+                <span>X-Burger (R$ 25,00)</span>
+                <input type="number" min="0" value="0" class="qtd">
+            </div>
+            <div class="item" data-nome="Batata Frita" data-preco="15.00">
+                <span>Batata Frita (R$ 15,00)</span>
+                <input type="number" min="0" value="0" class="qtd">
+            </div>
+            <div class="item" data-nome="Refrigerante" data-preco="7.00">
+                <span>Refrigerante (R$ 7,00)</span>
+                <input type="number" min="0" value="0" class="qtd">
+            </div>
+        </div>
+
+        <div class="total-section">
+            Total: R$ <span id="valor-total">0,00</span>
+        </div>
+
+        <hr style="border:0; border-top: 1px solid var(--item-border); margin: 20px 0;">
+
+        <form id="form-pedido">
+            <h3>Dados para Entrega</h3>
+            
+            <label for="nome">Seu Nome:</label>
+            <input type="text" id="nome" placeholder="Ex: João Silva" required>
+            
+            <label for="endereco">Endereço Completo:</label>
+            <input type="text" id="endereco" placeholder="Rua, Número, Bairro" required>
+
+            <label for="pagamento">Forma de Pagamento:</label>
+            <select id="pagamento">
+                <option value="Pix">Pix</option>
+                <option value="Cartão">Cartão (Maquininha)</option>
+                <option value="Dinheiro">Dinheiro</option>
+            </select>
+
+            <button type="button" id="btn-enviar">Enviar Pedido via WhatsApp</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
